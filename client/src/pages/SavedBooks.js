@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Jumbotron, Container, CardColumns, Card, Button } from 'react-bootstrap';
 
 // import { getMe, deleteBook } from '../utils/API';
+import { useQuery } from '@apollo/client';
 import { QUERY_ME } from '../utils/queries';
 import { DELETE_BOOK } from '../utils/mutations';
 
@@ -16,24 +17,30 @@ const SavedBooks = () => {
 
   useEffect(() => {
     const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
+      // try {
+      //   const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-        if (!token) {
-          return false;
-        }
+      //   if (!token) {
+      //     return false;
+      //   }
 
-        const response = await getMe(token);
+      //   const response = await getMe(token);
 
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
+      //   if (!response.ok) {
+      //     throw new Error('something went wrong!');
+      //   }
 
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
+      //   const user = await response.json();
+      //   setUserData(user);
+      // } catch (err) {
+      //   console.error(err);
+      // }
+      const { loading, data } = useQuery(
+        QUERY_ME
+      );
+
+      const user = data?.me || {};
+
     };
 
     getUserData();
