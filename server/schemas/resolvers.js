@@ -37,10 +37,24 @@ const resolvers = {
         saveBook: async (parent, { userId, bookData }, context) => {
             if (context.user) {
                 return User.findOneAndUpdate(
-                    {_id: user._id}
-                )
+                    {_id: userId},
+                    {$addToSet: { savedBooks: {book: bookData }}},
+                    { new: true, runVAlidators: true }
+                );
             }
-        }
+            throw new AuthenticationError("User not found. You need to be logged in to save books");
+        },
+
+        deleteBook: async (parent, { book }, context) => {
+            if (context.user) {
+                const updatedUser = await User.findOneAndUpdate(
+                    {_id: context.user._id},
+                    {$pull: {savedBooks: book } },
+                    {new: true}
+                );
+            }
+            throw new AuthenticationError("User not found. You need to log in to deleted book from list.");
+        },
     }, 
 };
 
