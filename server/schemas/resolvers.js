@@ -6,6 +6,13 @@ const resolvers = {
     Query: {
         user: async (parent, {userId}) => {
             return User.findOne({_id: userId});
+        },
+
+        me: async (parent, args, context) => {
+            if (context.user) {
+                return User.findOne({_id: context.user._id });
+            }
+            throw new AuthenticationError("No user found... You must be logged in");
         }
 
     },
@@ -39,7 +46,7 @@ const resolvers = {
                 return User.findOneAndUpdate(
                     {_id: userId},
                     {$addToSet: { savedBooks: {book: bookData }}},
-                    { new: true, runVAlidators: true }
+                    { new: true, runValidators: true }
                 );
             }
             throw new AuthenticationError("User not found. You need to be logged in to save books");
