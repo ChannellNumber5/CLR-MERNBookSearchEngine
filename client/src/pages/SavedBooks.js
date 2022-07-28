@@ -5,7 +5,7 @@ import { getMe, deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
-import {useQuery} from '@apollo/client';
+import {useMutation, useQuery} from '@apollo/client';
 import { DELETE_BOOK } from '../utils/mutations';
 import { QUERY_ME} from '../utils/queries';
 
@@ -14,6 +14,18 @@ const SavedBooks = () => {
 
   const savedBooks = data?.savedBooks || [];
   
+  const [deleteBook, {error}] = useMutation(DELETE_BOOK, {
+    update(cache, {data: {deleteBook }}) {
+      try {
+        cache.writeQuery({
+          query: QUERY_ME,
+          data: {me: deleteBook },
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  })
   // const [userData, setUserData] = useState({});
 
   // // use this to determine if `useEffect()` hook needs to run again
@@ -53,16 +65,19 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      const {data} = await deleteBook({
+        variables: {bookId}
+      });
+      // const response = await deleteBook(bookId, token);
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
+      // if (!response.ok) {
+      //   throw new Error('something went wrong!');
+      // }
 
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
+      // const updatedUser = await response.json();
+      // setUserData(updatedUser);
+      // // upon success, remove book's id from localStorage
+      // removeBookId(bookId);
     } catch (err) {
       console.error(err);
     }
